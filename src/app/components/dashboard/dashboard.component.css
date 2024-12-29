@@ -1,6 +1,5 @@
 .dashboard-layout {
   display: flex;
-  height: 100vh;
 }
 
 app-sidebar {
@@ -13,4 +12,5 @@ app-sidebar {
   padding: 16px;
   background-color: #ffffff;
   overflow-y: auto;
+  height: calc(100vh - 60px);
 }

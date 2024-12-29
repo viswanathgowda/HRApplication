@@ -1,1 +1,17 @@
-<p>home works!</p>
+<div>
+  <p-toast />
+  <p-confirmDialog />
+  <p-card header="Attendance" [style]="{ width: '360px' }">
+    <div
+      style="display: flex; align-items: center; justify-content: space-between"
+    >
+      <span>{{ today | date : "dd/MM/yyyy, HH:mm:ss" }}</span>
+      <p-button
+        label="{{ isSignedIn ? 'Sign Out' : 'Sign In' }}"
+        (click)="toggleAttendance($event)"
+        class="p-button-lg"
+        [disabled]="!isAllowedToSign"
+      ></p-button>
+    </div>
+  </p-card>
+</div>

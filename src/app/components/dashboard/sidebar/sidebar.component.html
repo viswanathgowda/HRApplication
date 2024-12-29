@@ -1,4 +1,4 @@
-<div class="p-grid p-nogutter" style="height: 100vh; margin: 0">
+<div class="p-grid p-nogutter" style="height: calc(100vh - 60px); margin: 0">
   <div
     class="p-col-fixed"
     style="
@@ -11,7 +11,7 @@
     <p-menu
       [model]="menuItems"
       styleClass="p-menu"
-      [style]="{ width: '100%', height: '100vh',  }"
+      [style]="{ width: '100%', height: 'calc(100vh - 60px)' }"
       (click)="activeMenu($event)"
     ></p-menu>
   </div>

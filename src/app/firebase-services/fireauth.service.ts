@@ -56,7 +56,15 @@ export class FireAuthService {
    * Get the currently authenticated user
    * @returns Current user or null if not authenticated
    */
-  getCurrentUser() {
-    return this.auth.currentUser;
+  async getCurrentUser(): Promise<any> {
+    // Assuming auth.currentUser is a property or a method that gives the current user.
+    return new Promise<any>((resolve, reject) => {
+      try {
+        const user = this.auth.currentUser; // Retrieve the current user from the authentication service.
+        resolve(user); // Resolve with the user or null.
+      } catch (error) {
+        reject(error); // Reject in case of error.
+      }
+    });
   }
 }

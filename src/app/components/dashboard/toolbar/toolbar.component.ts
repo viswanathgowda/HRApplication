@@ -22,7 +22,7 @@ export class ToolbarComponent {
   ) {}
 
   goToProfile() {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/dashboard/profile']);
   }
 
   logout() {
