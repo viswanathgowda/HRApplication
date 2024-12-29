@@ -1,0 +1,22 @@
+<p-toast />
+<div class="custom-toolbar">
+  <div class="toolbar-left">
+    <h1>HR Application</h1>
+  </div>
+  <div class="toolbar-right">
+    <button
+      pButton
+      label="Profile"
+      icon="pi pi-user"
+      class="p-button-outlined"
+      (click)="goToProfile()"
+    ></button>
+    <button
+      pButton
+      label="Logout"
+      icon="pi pi-power-off"
+      class="p-button-danger"
+      (click)="logout()"
+    ></button>
+  </div>
+</div>

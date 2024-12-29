@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { FireAuthService } from '../../firebase-services/fireauth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabel } from 'primeng/floatlabel';
-import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { TabViewModule } from 'primeng/tabview';
+import { DividerModule } from 'primeng/divider';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-login',
@@ -14,31 +16,45 @@ import { TabViewModule } from 'primeng/tabview';
     InputTextModule,
     FormsModule,
     FloatLabel,
-    PanelModule,
     CardModule,
     ButtonModule,
-    TabViewModule,
+    DividerModule,
+    ProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  loginData: { userName: string; password: string } = {
-    userName: '',
+  loginData: { email: string; password: string } = {
+    email: '',
     password: '',
   };
   guestLoginData: { userName: string; password: string } = {
     userName: '',
     password: '',
   };
+  isLoading: boolean = false;
+  constructor(private auth: FireAuthService, private router: Router) {}
 
   onLogin() {
-    console.log(this.loginData);
+    this.isLoading = true;
+    this.auth
+      .signIn(this.loginData.email, this.loginData.password)
+      .then((res) => {
+        this.isLoading = false;
+        this.router.navigate(['/dashboard/home']);
+      })
+      .catch((e) => {
+        this.isLoading = false;
+        console.error(e);
+      });
   }
 
   onGuestLogin() {
     console.log(this.guestLoginData);
   }
 
-  onForgotPassword() {}
+  onForgotPassword() {
+    this.router.navigate(['/forgotPwd']);
+  }
 }

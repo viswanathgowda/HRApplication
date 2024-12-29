@@ -1,0 +1,5 @@
+@media (max-width: 768px) {
+  .flex {
+    flex-direction: column; /* Change to column for mobile */
+  }
+}

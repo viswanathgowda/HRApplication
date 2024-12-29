@@ -1,0 +1,41 @@
+<div class="flex justify-content-center align-items-center h-screen">
+  <p-card>
+    <h2 class="text-center">User Registration</h2>
+    <form (ngSubmit)="register()" #regForm="ngForm">
+      <div class="flex flex-column gap-3">
+        <p-floatlabel>
+          <input
+            pInputText
+            id="username"
+            name="username"
+            type="email"
+            [(ngModel)]="regData.email"
+            required
+          />
+          <label for="username">Email</label>
+        </p-floatlabel>
+
+        <p-floatlabel>
+          <input
+            pInputText
+            id="password"
+            name="password"
+            type="password"
+            minlength="6"
+            [(ngModel)]="regData.password"
+            required
+          />
+          <label for="password">Password</label>
+        </p-floatlabel>
+
+        <button
+          pButton
+          type="submit"
+          label="Register"
+          class="p-button-primary w-full"
+          [disabled]="!regForm.valid"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+</div>

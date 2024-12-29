@@ -1,4 +1,9 @@
-<h1 class="text-center">Welcome to HR Application</h1>
+@if(isLoading){<p-progressSpinner
+  class="loader-container"
+  styleClass="w-4rem h-4rem"
+  ariaLabel="loading"
+/>}
+<h2 class="text-center">Welcome to HR Application</h2>
 <div class="align-items-center">
   <div class="flex">
     <!-- Left Side: Application Banner or Image -->
@@ -2468,14 +2473,12 @@
     <!-- Right Side: Login Form -->
     <div class="flex justify-content-center align-items-center w-full sm:w-6">
       <div class="card w-full sm:w-auto">
-        <p-tabView>
-          <!-- Login Panel -->
-          <p-tabPanel
-            header="Login"
-            [headerStyle]="{ flex: '1 1 auto', textAlign: 'center' }"
+        <div class="flex flex-column md:flex-row">
+          <div
+            class="w-full md:w-5 flex flex-column align-items-center justify-content-center gap-3 py-5"
           >
             <p-card>
-              <h2 class="text-center">Login</h2>
+              <h2 class="text-center">Employee</h2>
               <form (ngSubmit)="onLogin()" #loginForm="ngForm">
                 <div class="flex flex-column gap-3">
                   <p-floatlabel>
@@ -2484,10 +2487,10 @@
                       id="username"
                       name="username"
                       type="email"
-                      [(ngModel)]="loginData.userName"
+                      [(ngModel)]="loginData.email"
                       required
                     />
-                    <label for="username">Username</label>
+                    <label for="username">Email</label>
                   </p-floatlabel>
 
                   <p-floatlabel>
@@ -2508,11 +2511,12 @@
                     type="submit"
                     label="Login"
                     class="p-button-primary w-full"
+                    icon="pi pi-user"
+                    styleClass="w-10rem mx-auto"
                     [disabled]="!loginForm.valid"
                   ></button>
 
                   <a
-                    href="#"
                     class="text-center text-sm text-primary cursor-pointer mt-2"
                     (click)="onForgotPassword()"
                     >Forgot Password?</a
@@ -2520,15 +2524,24 @@
                 </div>
               </form>
             </p-card>
-          </p-tabPanel>
-
-          <!-- Guest User Panel -->
-          <p-tabPanel
-            header="Guest User"
-            [headerStyle]="{ flex: '1 1 auto', textAlign: 'center' }"
+          </div>
+          <div class="w-full md:w-2">
+            <p-divider layout="vertical" styleClass="hidden md:flex">
+              <b>OR</b>
+            </p-divider>
+            <p-divider
+              layout="horizontal"
+              styleClass="flex md:hidden"
+              [align]="'center'"
+            >
+              <b>OR</b>
+            </p-divider>
+          </div>
+          <div
+            class="w-full md:w-5 flex align-items-center justify-content-center py-5"
           >
             <p-card>
-              <h2 class="text-center">Guest Login</h2>
+              <h2 class="text-center">Guest</h2>
               <form (ngSubmit)="onGuestLogin()" #guestLoginForm="ngForm">
                 <div class="flex flex-column gap-3">
                   <p-floatlabel>
@@ -2569,12 +2582,14 @@
                     type="button"
                     label="View as Guest"
                     class="p-button-secondary w-full"
+                    icon="pi pi-user"
+                    styleClass="w-10rem mx-auto"
                   ></button>
                 </div>
               </form>
             </p-card>
-          </p-tabPanel>
-        </p-tabView>
+          </div>
+        </div>
       </div>
     </div>
   </div>
