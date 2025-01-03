@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.signState_S = this.fireStore
         .getDoc(`attendance/${formattedMonth}/${user.uid}/${formattedDay}`)
         .subscribe((data: any) => {
-          if (Object.hasOwn(data, 'signIn')) {
+          if (data && Object.hasOwn(data, 'signIn')) {
             data.signIn && data.signOut
               ? (this.isAllowedToSign = false)
               : (this.isAllowedToSign = true);

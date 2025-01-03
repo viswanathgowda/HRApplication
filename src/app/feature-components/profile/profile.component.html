@@ -1,1 +1,279 @@
-<p>profile works!</p>
+<p-toast />
+<div class="profile-container p-d-flex p-flex-column p-ai-center p-p-4">
+  <p-card class="p-shadow-2" [style]="{ width: '100%', 'text-align': 'left' }">
+    <form (ngSubmit)="onSave()" #basicInfo="ngForm" novalidate>
+      <div class="basic-info">
+        <div class="p-d-flex p-flex-column p-ai-center">
+          <p-avatar
+            *ngIf="profilePic; else noProfilePic"
+            [image]="profilePic"
+            size="xlarge"
+            shape="circle"
+            class="profile-image"
+          ></p-avatar>
+          <ng-template #noProfilePic>
+            <p-avatar
+              [label]="name.charAt(0)"
+              size="xlarge"
+              shape="circle"
+              class="profile-image"
+              [style.fontSize]="'4rem'"
+            >
+            </p-avatar>
+          </ng-template>
+
+          <p-fileUpload
+            name="profilePic"
+            url="YOUR_UPLOAD_URL"
+            accept="image/*"
+            chooseIcon="pi pi-upload"
+            [showUploadButton]="true"
+            [auto]="true"
+            [customUpload]="true"
+            (uploadHandler)="handleUpload($event)"
+            class="p-mt-2"
+            mode="basic"
+            [style.width]="'150px'"
+            [style.height]="'40px'"
+          >
+            <ng-template pTemplate="choose">
+              <button
+                type="button"
+                class="p-button p-button-outlined p-button-sm p-button-primary"
+              >
+                Upload
+              </button>
+            </ng-template>
+          </p-fileUpload>
+        </div>
+
+        <div
+          class="w-full md:w-5 flex flex-column align-items-center justify-content-center gap-3 py-5 custom-margin"
+        >
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Username</label>
+            <input
+              pInputText
+              id="username"
+              [(ngModel)]="username"
+              type="text"
+              class="w-12rem"
+              required
+              name="username"
+              minlength="4"
+            />
+            <div
+              class="w-12rem"
+              *ngIf="
+                basicInfo.submitted || basicInfo.controls['username']?.dirty
+              "
+            >
+              <small
+                *ngIf="basicInfo.controls['username']?.errors?.['required']"
+                class="p-error"
+              >
+                Username is required.
+              </small>
+              <small
+                *ngIf="basicInfo.controls['username']?.errors?.['minlength']"
+                class="p-error"
+              >
+                Username must be at least 4 characters long.
+              </small>
+            </div>
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Name</label>
+            <input
+              pInputText
+              id="name"
+              type="text"
+              [(ngModel)]="name"
+              class="w-12rem"
+              name="name"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Email</label>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              [(ngModel)]="email"
+              class="w-12rem"
+              name="email"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Bio</label>
+            <textarea
+              pInputText
+              id="bio"
+              [(ngModel)]="bio"
+              class="w-12rem"
+              name="bio"
+            ></textarea>
+          </div>
+        </div>
+
+        <div
+          class="w-full md:w-5 flex flex-column align-items-center justify-content-center gap-3 py-5 custom-margin"
+        >
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">PhoneNumber</label>
+            <input
+              pInputText
+              id="phoneNumber"
+              [(ngModel)]="phoneNumber"
+              type="number"
+              class="w-12rem"
+              name="phoneNumber"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Current Address</label>
+            <input
+              pInputText
+              id="currentAddress"
+              type="text"
+              [(ngModel)]="currentAddress"
+              class="w-12rem"
+              name="currentAddress"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Permanant Address</label>
+            <input
+              pInputText
+              id="perAddress"
+              type="text"
+              [(ngModel)]="perAddress"
+              class="w-12rem"
+              name="perAddress"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Education</label>
+            <input
+              pInputText
+              id="education"
+              type="text"
+              [(ngModel)]="education"
+              class="w-12rem"
+              name="education"
+            />
+          </div>
+        </div>
+
+        <!-- <div
+          class="w-full md:w-5 flex flex-column align-items-center justify-content-center gap-3 py-5 custom-margin"
+        >
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">PhoneNumber</label>
+            <input
+              pInputText
+              id="phoneNumber"
+              [(ngModel)]="phoneNumber"
+              type="number"
+              class="w-12rem"
+              name="phoneNumber"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Address</label>
+            <input
+              pInputText
+              id="perAddress"
+              type="text"
+              [(ngModel)]="perAddress"
+              class="w-12rem"
+              name="perAddress"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Education</label>
+            <input
+              pInputText
+              id="education"
+              type="text"
+              [(ngModel)]="education"
+              class="w-12rem"
+              name="education"
+            />
+          </div>
+          <div
+            class="flex flex-wrap justify-content-center align-items-center gap-2"
+          >
+            <label class="w-6rem">Name1</label>
+            <input
+              pInputText
+              id="name"
+              type="text"
+              [(ngModel)]="name"
+              class="w-12rem"
+              name="name"
+            />
+          </div>
+        </div> -->
+      </div>
+
+      <div class="basic-info-save">
+        <button
+          type="submit"
+          class="p-button p-button-primary"
+          [disabled]="!basicInfo.valid"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </p-card>
+</div>
+
+<div class="profile-container p-d-flex p-flex-column p-ai-center p-p-4">
+  <p-card class="p-shadow-2" [style]="{ width: '100%', 'text-align': 'left' }">
+    <form (ngSubmit)="onSave()" #basicInfo="ngForm" novalidate>
+      <div class="card flex justify-content-center">
+        <p-toast />
+        <p-fileUpload
+          name="demo[]"
+          url="https://www.primefaces.org/cdn/api/upload.php"
+          (onUpload)="onUpload($event)"
+          [multiple]="true"
+          accept="image/*"
+          maxFileSize="1000000"
+        >
+          <ng-template pTemplate="content">
+            <ul *ngIf="uploadedFiles.length">
+              <li *ngFor="let file of uploadedFiles">
+                {{ file.name }} - {{ file.size }} bytes
+              </li>
+            </ul>
+          </ng-template>
+        </p-fileUpload>
+      </div>
+    </form>
+  </p-card>
+</div>

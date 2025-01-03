@@ -1,0 +1,50 @@
+.profile-card {
+  padding: 20px;
+}
+
+.profile-image {
+  width: 200px !important;
+  height: 200px !important;
+}
+
+:host ::ng-deep .p-card {
+  flex-direction: row !important;
+}
+
+:host ::ng-deep .p-card-body {
+  width: 100%;
+}
+/* Style for Upload Button */
+
+:host ::ng-deep .p-button {
+  background-color: #007bff; /* Blue color */
+  color: white; /* White text */
+  font-size: 14px; /* Adjust font size */
+  padding: 5px 15px; /* Adjust padding */
+  border-radius: 5px; /* Rounded corners */
+}
+
+:host ::ng-deep .p-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+:host ::ng-deep .p-fileupload-basic {
+  padding-top: 10px !important;
+}
+
+.w-full.custom-margin {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+.basic-info {
+  display: flex;
+}
+.basic-info-save {
+  display: flex;
+  justify-content: end;
+}
+
+.p-error {
+  color: red;
+}

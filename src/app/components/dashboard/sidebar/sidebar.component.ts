@@ -46,7 +46,11 @@ export class SidebarComponent {
         icon: 'pi pi-users',
         command: () => this.navigateTo('/dashboard/employees'),
       },
-
+      {
+        label: 'Register',
+        icon: 'pi pi-pencil',
+        command: () => this.navigateTo('/dashboard/register'),
+      },
       {
         label: 'Settings',
         icon: 'pi pi-cog',
