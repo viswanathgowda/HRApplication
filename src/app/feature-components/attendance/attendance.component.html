@@ -1,1 +1,72 @@
-<p>attendance works!</p>
+<div class="attendance-container">
+  <p-dropdown
+    [(ngModel)]="viewType"
+    [options]="viewOptions"
+    placeholder="Select View"
+    (onChange)="changeView(viewType)"
+  ></p-dropdown>
+  <p-dropdown
+    *ngIf="viewType === 'monthly'"
+    [(ngModel)]="viewMonth"
+    [options]="months"
+    placeholder="Select View"
+    (onChange)="changeView(viewType)"
+  ></p-dropdown>
+
+  <div *ngIf="viewType === 'weekly'" class="weekly-view">
+    <p-table [value]="weeklyAttendance">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Date | Day</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-day>
+        <tr>
+          <td>
+            {{ day.date | date : "MMM d, yyyy" }} |
+            {{ day.date | date : "EEEE" }}
+          </td>
+          <td [ngClass]="day.status">{{ day.status | titlecase }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div *ngIf="viewType === 'monthly'" class="monthly-view">
+    <div class="monthly-grid">
+      <div class="week-row" *ngFor="let week of monthlyAttendance">
+        <div class="day-box" *ngFor="let day of week">
+          <div class="date">{{ day.date | date : "d" }}</div>
+          <div class="day-name">{{ day.date | date : "EEE" }}</div>
+          <div class="status" [ngClass]="day.status">
+            {{ day.status | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="viewType === 'yearly'" class="yearly-view">
+    <p-table [value]="yearlyAttendance">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Month</th>
+          <th>Present</th>
+          <th>Leaves</th>
+          <th>Holidays</th>
+          <th>Offs</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-month>
+        <tr>
+          <td>{{ month.name }}</td>
+          <td>{{ month.present }}</td>
+          <td>{{ month.leaves }}</td>
+          <td>{{ month.holidays }}</td>
+          <td>{{ month.offs }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

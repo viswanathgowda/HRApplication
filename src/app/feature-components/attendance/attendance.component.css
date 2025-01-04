@@ -1,0 +1,65 @@
+.monthly-view {
+  margin: 1rem 1rem 1rem 0;
+}
+.monthly-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between rows */
+}
+
+.p-select {
+  margin-right: 1rem;
+}
+
+.week-row {
+  display: flex;
+  gap: 10px; /* Space between boxes */
+}
+
+.day-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  background-color: #fff;
+}
+
+.day-box .date {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.day-box .day-name {
+  font-size: 0.9em;
+  color: #888;
+}
+
+.day-box .status {
+  font-size: 0.9em;
+  margin-top: 5px;
+  text-transform: capitalize;
+}
+
+.day-box.present {
+  background-color: #e6ffe6; /* Light green */
+}
+
+.day-box.leave {
+  background-color: #ffe6e6; /* Light red */
+}
+
+.day-box.holiday {
+  background-color: #e6f7ff; /* Light blue */
+}
+
+.day-box.empty {
+  background-color: #f9f9f9;
+  color: #ccc;
+  border: none;
+  pointer-events: none; /* Non-interactive for empty days */
+}

@@ -7,6 +7,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { ProfileComponent } from './feature-components/profile/profile.component';
 import { HomeComponent } from './feature-components/home/home.component';
 import { PermissionsComponent } from './feature-components/permissions/permissions.component';
+import { AttendanceComponent } from './feature-components/attendance/attendance.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [AuthGuard] },
@@ -34,6 +35,11 @@ export const routes: Routes = [
       {
         path: 'permissions',
         component: PermissionsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'attendance',
+        component: AttendanceComponent,
         canActivate: [AuthGuard],
       },
     ],
