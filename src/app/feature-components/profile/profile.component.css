@@ -48,3 +48,7 @@
 .p-error {
   color: red;
 }
+
+.card-margin {
+  margin-bottom: 1rem;
+}

@@ -5,12 +5,18 @@ import {
   setDoc,
   addDoc,
   collection,
-  getDoc,
   updateDoc,
   deleteDoc,
   DocumentReference,
   Timestamp,
   onSnapshot,
+  WhereFilterOp,
+  QueryConstraint,
+  where,
+  orderBy,
+  limit,
+  query,
+  collectionData,
 } from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
 
@@ -95,6 +101,51 @@ export class FirestoreService {
       : {}; // Use an empty object if no timestampFieldName is provided
     const documentRef = doc(this.firestore, docPath);
     return updateDoc(documentRef, { ...data, ...time });
+  }
+
+  getCollection(
+    path: string,
+    filters?: {
+      key: string;
+      filter: WhereFilterOp;
+      val: string | string[] | boolean | Date | number | Record<string, any>;
+    }[],
+    lim?: number,
+    order?: { key: string; direction: 'asc' | 'desc' },
+    orCond?: boolean
+  ): Observable<any> {
+    const collectionRef = collection(this.firestore, path);
+    const constraints: QueryConstraint[] = [];
+
+    // Add filters
+    if (filters) {
+      if (orCond) {
+        // Firestore doesn't natively support OR conditions in a single query
+        throw new Error(
+          'Firestore does not support OR conditions natively. Handle OR logic client-side.'
+        );
+      } else {
+        filters.forEach((filter) => {
+          constraints.push(where(filter.key, filter.filter, filter.val));
+        });
+      }
+    }
+
+    // Add ordering
+    if (order) {
+      constraints.push(orderBy(order.key, order.direction));
+    }
+
+    // Add limit
+    if (lim) {
+      constraints.push(limit(lim));
+    }
+
+    // Build query
+    const finalQuery = query(collectionRef, ...constraints);
+
+    // Return observable with document data
+    return collectionData(finalQuery, { idField: 'docid' });
   }
 
   /**

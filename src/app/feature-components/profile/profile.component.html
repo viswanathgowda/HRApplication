@@ -1,5 +1,11 @@
-<p-toast />
-<div class="profile-container p-d-flex p-flex-column p-ai-center p-p-4">
+<p-toast /> @if(isLoading){<p-progressSpinner
+  class="loader-container"
+  styleClass="w-4rem h-4rem"
+  ariaLabel="loading"
+/>}
+<div
+  class="profile-container p-d-flex p-flex-column p-ai-center p-p-4 card-margin"
+>
   <p-card class="p-shadow-2" [style]="{ width: '100%', 'text-align': 'left' }">
     <form (ngSubmit)="onSave()" #basicInfo="ngForm" novalidate>
       <div class="basic-info">
@@ -252,23 +258,29 @@
   </p-card>
 </div>
 
-<div class="profile-container p-d-flex p-flex-column p-ai-center p-p-4">
+<div
+  class="profile-container p-d-flex p-flex-column p-ai-center p-p-4 card-margin"
+>
   <p-card class="p-shadow-2" [style]="{ width: '100%', 'text-align': 'left' }">
     <form (ngSubmit)="onSave()" #basicInfo="ngForm" novalidate>
       <div class="card flex justify-content-center">
         <p-toast />
         <p-fileUpload
           name="demo[]"
-          url="https://www.primefaces.org/cdn/api/upload.php"
-          (onUpload)="onUpload($event)"
+          (uploadHandler)="onUpload($event)"
           [multiple]="true"
-          accept="image/*"
+          [customUpload]="true"
+          accept="image/*,application/pdf,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           maxFileSize="1000000"
         >
           <ng-template pTemplate="content">
             <ul *ngIf="uploadedFiles.length">
-              <li *ngFor="let file of uploadedFiles">
-                {{ file.name }} - {{ file.size }} bytes
+              <li *ngFor="let file of uploadedFiles" style="list-style: none">
+                @if(file.size){
+                {{ file.name }} - {{ file.size }} bytes } @else {
+                <p-image [src]="file.url" alt="Image" width="80" />
+                {{ file.name }}
+                }
               </li>
             </ul>
           </ng-template>

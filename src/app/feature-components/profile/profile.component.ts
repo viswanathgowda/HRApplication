@@ -8,14 +8,17 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { FileUploadModule, UploadEvent } from 'primeng/fileupload';
+import { FileUploadModule } from 'primeng/fileupload';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { MessagesModule } from 'primeng/messages';
+import { ImageModule } from 'primeng/image';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { FireStorageService } from '../../firebase-services/fireStorage.service';
 import { FireAuthService } from '../../firebase-services/fireauth.service';
 import { FirestoreService } from '../../firebase-services/firestore.service';
+import { arrayUnion } from 'firebase/firestore'; // Ensure proper import
 
 @Component({
   selector: 'app-profile',
@@ -35,6 +38,8 @@ import { FirestoreService } from '../../firebase-services/firestore.service';
     ReactiveFormsModule,
     MessagesModule,
     CommonModule,
+    ImageModule,
+    ProgressSpinnerModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './profile.component.html',
@@ -49,15 +54,11 @@ export class ProfileComponent implements OnInit {
   currentAddress = '';
   perAddress = '';
   education = '';
-  socialMedia = [
-    { platform: 'LinkedIn', link: 'https://www.linkedin.com/in/johndoe' },
-    { platform: 'Twitter', link: 'https://twitter.com/johndoe' },
-    { platform: 'GitHub', link: 'https://github.com/johndoe' },
-  ];
   profilePic: any; // Default profile picture
   uploadedFiles: any[] = [];
+  isLoading: boolean = false;
 
-  // Bank Details
+  // Bank Details needs to add
   bankDetails = {
     accountNumber: '',
     ifscCode: '',
@@ -74,24 +75,30 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     this.getProfile();
     this.getProfileData();
+    this.getDocuments();
   }
 
   getProfile() {
+    this.isLoading = true;
     this.auth
       .getCurrentUser()
       .then(async (user) => {
-        const url = await this.fireStorage.getFileURL(`users/${user.uid}`);
+        const url = await this.fireStorage.getFileURL(
+          `users/${user.uid}/profile`
+        );
         this.profilePic = url;
+        this.isLoading = false;
       })
       .catch((e) => {
         console.error(e);
+        this.isLoading = false;
       });
   }
 
   getProfileData() {
+    this.isLoading = true;
     this.auth.getCurrentUser().then((user) => {
       this.firestore.getDoc(`users/${user.uid}`).subscribe((details) => {
-        console.log(details);
         this.name = details.name;
         this.username = details.username;
         this.email = details.useremail;
@@ -100,6 +107,7 @@ export class ProfileComponent implements OnInit {
         this.currentAddress = details.currentAddress;
         this.perAddress = details.permanentAddress;
         this.education = details.education;
+        this.isLoading = false;
       });
     });
   }
@@ -109,18 +117,22 @@ export class ProfileComponent implements OnInit {
     this.auth.getCurrentUser().then(async (user) => {
       if (user) {
         try {
-          const url = await this.fireStorage.getFileURL(`users/${user.uid}`);
+          const url = await this.fireStorage.getFileURL(
+            `users/${user.uid}/profile`
+          );
           if (url) {
-            await this.fireStorage.deleteFile(`users/${user.uid}`);
+            await this.fireStorage.deleteFile(`users/${user.uid}/profile`);
           }
 
-          this.fireStorage.uploadFile(`users/${user.uid}`, file).then(() => {
-            this.messageService.add({
-              severity: 'info',
-              summary: 'Profile Picture Uploaded Successfully.',
+          this.fireStorage
+            .uploadFile(`users/${user.uid}/profile`, file)
+            .then(() => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Profile Picture Uploaded Successfully.',
+              });
+              this.getProfile();
             });
-            this.getProfile();
-          });
         } catch (error) {
           console.error('Error during file operation:', error);
           this.messageService.add({
@@ -133,19 +145,65 @@ export class ProfileComponent implements OnInit {
   }
 
   onUpload(event: any) {
-    for (let file of event.files) {
-      this.uploadedFiles.push(file);
-      console.log(this.uploadedFiles);
-    }
+    const files: any[] = [];
+    this.auth.getCurrentUser().then((user) => {
+      for (let file of event.files) {
+        this.uploadedFiles.push(file);
+        files.push(file.name);
+        this.fireStorage.uploadFile(`users/${user.uid}/${file.name}`, file);
+        console.log(this.uploadedFiles);
+      }
 
-    this.messageService.add({
-      severity: 'info',
-      summary: 'File Uploaded',
-      detail: '',
+      // Update the Firestore document with the array of file names
+      this.firestore.updateDoc(
+        `users/${user.uid}`, // Document path
+        { documents: arrayUnion(...files) }, // Use arrayUnion to add file names
+        'updatedAt' // Optional timestamp field
+      );
+
+      this.messageService.add({
+        severity: 'info',
+        summary: 'File Uploaded',
+        detail: '',
+      });
+      this.getDocuments();
     });
   }
 
+  getDocuments() {
+    this.isLoading = true;
+    this.auth.getCurrentUser().then((user) => {
+      this.firestore.getDoc(`users/${user.uid}`).subscribe(async (details) => {
+        const docs = details.documents;
+        if (docs.length > 0) {
+          for (let doc of docs) {
+            const url = await this.fireStorage.getFileURL(
+              `users/${user.uid}/${doc}`
+            );
+            this.uploadedFiles.push({ name: doc, url: url });
+          }
+        }
+        this.isLoading = false;
+      });
+    });
+  }
+
+  // removeFile(file: { name: string; url: string }) {
+  //   this.auth.getCurrentUser().then(async (user) => {
+  //     await this.fireStorage.deleteFile(`users/${user.uid}/${file.name}`);
+  //     await this.firestore.updateDoc(`users/${user.uid}`, {
+  //       documents: arrayRemove(file.name),
+  //     });
+  //     this.messageService.add({
+  //       severity: 'info',
+  //       summary: 'File Removed',
+  //       detail: `The file "${file.name}" has been removed.`,
+  //     });
+  //   });
+  // }
+
   onSave() {
+    this.isLoading = true;
     const payload = {
       name: this.name,
       username: this.username,
@@ -160,12 +218,14 @@ export class ProfileComponent implements OnInit {
       this.firestore
         .updateDoc(`users/${user.uid}`, payload)
         .then(() => {
+          this.isLoading = false;
           this.messageService.add({
             severity: 'success',
             summary: 'Profile Data Updated Successfully',
           });
         })
         .catch((e) => {
+          this.isLoading = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Unkown Error Occurred!.',
