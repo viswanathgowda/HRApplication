@@ -5,11 +5,29 @@
     placeholder="Select View"
     (onChange)="changeView(viewType)"
   ></p-dropdown>
+  <p-button
+    label="Previous"
+    severity="help"
+    class="mr-3"
+    *ngIf="viewType === 'weekly'"
+    (onClick)="
+      fetchWeeklyAttendance(attendance, weeklyAttendance[6].date, 'previous')
+    "
+  />
+  <p-button
+    label="Next"
+    severity="help"
+    [disabled]="isNextWeekAvl"
+    *ngIf="viewType === 'weekly'"
+    (onClick)="
+      fetchWeeklyAttendance(attendance, weeklyAttendance[0].date, 'next')
+    "
+  />
   <p-dropdown
     *ngIf="viewType === 'monthly'"
     [(ngModel)]="viewMonth"
     [options]="months"
-    placeholder="Select View"
+    placeholder="Select Month"
     (onChange)="changeView(viewType)"
   ></p-dropdown>
 
@@ -19,6 +37,8 @@
         <tr>
           <th>Date | Day</th>
           <th>Status</th>
+          <th>Sign In</th>
+          <th>Sign Out</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-day>
@@ -27,7 +47,82 @@
             {{ day.date | date : "MMM d, yyyy" }} |
             {{ day.date | date : "EEEE" }}
           </td>
-          <td [ngClass]="day.status">{{ day.status | titlecase }}</td>
+          <td [ngClass]="day.status">
+            @if(day.status.includes('Alert')){
+            <p-tag
+              icon="pi pi-exclamation-triangle"
+              [value]="day.status"
+              [style]="{
+                'background-color': 'orange',
+                color: 'black',
+                'font-weight': 'normal',
+                'text-transform': 'capitalize',
+              }"
+            />
+            } @if(day.status.includes('Absent')){
+            <p-tag
+              [value]="day.status"
+              [style]="{
+                'background-color': 'red',
+                color: 'black',
+                'font-weight': 'normal',
+                'text-transform': 'capitalize',
+              }"
+            />
+            } @if(day.status.includes('Half-day')){
+            <p-tag
+              [value]="day.status"
+              [style]="{
+                'background-color': 'lightblue',
+                color: 'black',
+                'font-weight': 'normal',
+                'text-transform': 'capitalize',
+              }"
+            />
+            } @if(day.status.includes('Present')){
+            <p-tag
+              [value]="day.status"
+              [style]="{
+                'background-color': 'lightgreen',
+                color: 'black',
+                'font-weight': 'normal',
+                'text-transform': 'capitalize',
+              }"
+            />
+            } @if(day.status.includes('Holiday')){
+            <p-tag
+              [value]="day.status"
+              [style]="{
+                'background-color': 'lightgrey',
+                color: 'black',
+                'font-weight': 'normal',
+                'text-transform': 'capitalize',
+              }"
+            />
+            } @if(day.status.includes('Off')){
+            <p-tag
+              [value]="day.status"
+              [style]="{
+                'background-color': 'green',
+                color: 'black',
+                'font-weight': 'normal',
+                'text-transform': 'capitalize',
+              }"
+            />
+            } @if(day.status.includes('Working')){
+            <p-tag
+              [value]="day.status"
+              [style]="{
+                    'background-color': 'lightblue',
+                    color: 'black',
+                    'font-weight': 'normal',
+                    'text-transform': 'capitalize',
+                  }"
+            />
+            }
+          </td>
+          <td>{{ day.signIn }}</td>
+          <td>{{ day.signOut }}</td>
         </tr>
       </ng-template>
     </p-table>
