@@ -57,4 +57,17 @@ export class LoginComponent {
   onForgotPassword() {
     this.router.navigate(['/forgotPwd']);
   }
+
+  viewAsGuest() {
+    this.auth
+      .signIn('aditinayak195@gmail.com', 'test@123')
+      .then(() => {
+        this.isLoading = false;
+        this.router.navigate(['/dashboard/home']);
+      })
+      .catch((e) => {
+        this.isLoading = false;
+        console.error(e);
+      });
+  }
 }

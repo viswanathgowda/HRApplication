@@ -1,4 +1,5 @@
 <div class="flex justify-content-center align-items-center">
+  <p-toast />
   <p-card>
     <h2 class="text-center">User Registration</h2>
     <form (ngSubmit)="register()" #regForm="ngForm">
@@ -33,7 +34,7 @@
           type="submit"
           label="Register"
           class="p-button-primary w-full"
-          [disabled]="!regForm.valid"
+          [disabled]="!regForm.valid || isViewAsGuestUser"
         ></button>
       </div>
     </form>

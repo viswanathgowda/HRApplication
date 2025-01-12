@@ -99,15 +99,22 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.auth.getCurrentUser().then((user) => {
       this.firestore.getDoc(`users/${user.uid}`).subscribe((details) => {
-        this.name = details.name;
-        this.username = details.username;
-        this.email = details.useremail;
-        this.bio = details.bio;
-        this.phoneNumber = details.phoneNumber;
-        this.currentAddress = details.currentAddress;
-        this.perAddress = details.permanentAddress;
-        this.education = details.education;
-        this.isLoading = false;
+        if (details) {
+          this.name = details.name;
+          this.username = details.username;
+          this.email = details.useremail;
+          this.bio = details.bio;
+          this.phoneNumber = details.phoneNumber;
+          this.currentAddress = details.currentAddress;
+          this.perAddress = details.permanentAddress;
+          this.education = details.education;
+          this.isLoading = false;
+        } else {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Profile not found.',
+          });
+        }
       });
     });
   }
@@ -174,7 +181,7 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.auth.getCurrentUser().then((user) => {
       this.firestore.getDoc(`users/${user.uid}`).subscribe(async (details) => {
-        const docs = details.documents;
+        const docs = details.documents ? details.documents : [];
         if (docs.length > 0) {
           for (let doc of docs) {
             const url = await this.fireStorage.getFileURL(

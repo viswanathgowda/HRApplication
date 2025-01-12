@@ -64,7 +64,7 @@ export class SidebarComponent {
   }
 
   activeMenu(event: any) {
-    console.log(event, event.item);
+    // console.log(event, event.item);
     // let node;
     // if (event.target.tagName === 'A') {
     //   node = event.target;

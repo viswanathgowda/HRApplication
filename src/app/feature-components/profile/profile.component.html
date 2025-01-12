@@ -19,7 +19,7 @@
           ></p-avatar>
           <ng-template #noProfilePic>
             <p-avatar
-              [label]="name.charAt(0)"
+              [label]="(name && name.charAt(0)) || 'P'"
               size="xlarge"
               shape="circle"
               class="profile-image"
