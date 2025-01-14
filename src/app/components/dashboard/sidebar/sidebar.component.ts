@@ -51,11 +51,11 @@ export class SidebarComponent {
         icon: 'pi pi-pencil',
         command: () => this.navigateTo('/dashboard/register'),
       },
-      {
-        label: 'Settings',
-        icon: 'pi pi-cog',
-        command: () => this.navigateTo('/settings'),
-      },
+      // {
+      //   label: 'Settings',
+      //   icon: 'pi pi-cog',
+      //   command: () => this.navigateTo('/settings'),
+      // },
     ];
   }
 
