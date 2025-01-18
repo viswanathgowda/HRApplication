@@ -22,3 +22,15 @@
   display: inline-flex;
   align-items: center;
 }
+
+@media (max-width: 768px) {
+  .hide-toolbar {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-sidebar {
+    display: none;
+  }
+}
