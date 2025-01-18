@@ -1,4 +1,7 @@
-<div class="p-grid p-nogutter" style="height: calc(100vh - 60px); margin: 0">
+<div
+  class="p-grid p-nogutter hide-toolbar"
+  style="height: calc(100vh - 60px); margin: 0"
+>
   <div
     class="p-col-fixed"
     style="
@@ -8,11 +11,38 @@
       flex-direction: column;
     "
   >
-    <p-menu
-      [model]="menuItems"
+    <p-megamenu
       styleClass="p-menu"
       [style]="{ width: '100%', height: 'calc(100vh - 60px)' }"
-      (click)="activeMenu($event)"
-    ></p-menu>
+      [model]="items"
+      orientation="vertical"
+    />
   </div>
+</div>
+
+<div class="card hide-sidebar">
+  <p-megamenu
+    [model]="items"
+    [style]="{ display: 'flex' }"
+    styleClass="p-4 bg-surface-0 dark:bg-surface-900"
+  >
+    <ng-template #end>
+      <div class="toolbar-right">
+        <button
+          pButton
+          label="Profile"
+          icon="pi pi-user"
+          class="p-button-outlined"
+          (click)="goToProfile()"
+        ></button>
+        <button
+          pButton
+          label="Logout"
+          icon="pi pi-power-off"
+          class="p-button-danger"
+          (click)="logout()"
+        ></button>
+      </div>
+    </ng-template>
+  </p-megamenu>
 </div>

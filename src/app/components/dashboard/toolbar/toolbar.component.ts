@@ -5,11 +5,12 @@ import { FireAuthService } from '../../../firebase-services/fireauth.service';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [ToolbarModule, ButtonModule, ToastModule],
+  imports: [ToolbarModule, ButtonModule, ToastModule, SidebarComponent],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.css',
   providers: [MessageService],

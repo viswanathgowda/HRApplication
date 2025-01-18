@@ -26,3 +26,24 @@
 :host ::ng-deep .p-menu .p-menuitem .ui-menuitem-link.active:hover {
   background-color: #0056b3 !important;
 }
+
+.toolbar-right {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .hide-toolbar {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-sidebar {
+    display: none;
+  }
+}
+
+:host ::ng-deep .p-megamenu-horizontal .p-megamenu-end {
+  margin-left: 0 !important;
+}

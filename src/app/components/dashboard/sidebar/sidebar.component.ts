@@ -1,24 +1,39 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
+import { CommonModule } from '@angular/common';
+
+import { MegaMenuItem, MessageService } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { RippleModule } from 'primeng/ripple';
-import { CommonModule } from '@angular/common';
+import { MegaMenu } from 'primeng/megamenu';
+import { ButtonModule } from 'primeng/button';
+import { FireAuthService } from '../../../firebase-services/fireauth.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, CommonModule],
+  imports: [
+    BadgeModule,
+    AvatarModule,
+    RippleModule,
+    CommonModule,
+    MegaMenu,
+    ButtonModule,
+  ],
+  providers: [MessageService],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent {
-  menuItems: MenuItem[] = [];
+  items: MegaMenuItem[] | undefined;
 
-  constructor(private router: Router) {
-    this.menuItems = [
+  constructor(
+    private router: Router,
+    private auth: FireAuthService,
+    private messageService: MessageService
+  ) {
+    this.items = [
       {
         label: 'Home',
         icon: 'pi pi-home',
@@ -51,12 +66,27 @@ export class SidebarComponent {
         icon: 'pi pi-pencil',
         command: () => this.navigateTo('/dashboard/register'),
       },
-      // {
-      //   label: 'Settings',
-      //   icon: 'pi pi-cog',
-      //   command: () => this.navigateTo('/settings'),
-      // },
     ];
+  }
+
+  goToProfile() {
+    this.router.navigate(['/dashboard/profile']);
+  }
+
+  logout() {
+    this.auth
+      .logout()
+      .then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Message Content',
+        });
+        this.router.navigate(['/login']);
+      })
+      .catch((e) => {
+        console.error(`Ukown error occurred: ${e}`);
+      });
   }
 
   navigateTo(path: string) {
