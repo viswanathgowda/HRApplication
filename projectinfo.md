@@ -1,5 +1,38 @@
 # Hi this is an HR application
 
+# Note
+
+The existing codebase was implemented using **Firestore** as the backend service.  
+However, we are now **migrating away from Firestore** and will be building **REST API services** that use **PostgreSQL** as the primary database.
+
+## Required Updates
+
+1. **Create REST API Services**
+
+   - Implement API services that interact with **PostgreSQL** data.
+   - Replace all Firestore-related logic with REST-based endpoints.
+
+2. **Feature Flag for Backend Switching**
+   - Introduce a **feature flag mechanism** that allows switching between different API services.
+   - Example:
+     - If the application is configured to use Firestore → it should use existing Firestore service implementations.
+     - If configured to use PostgreSQL → it should use the new REST API services.
+   - The selection can be controlled via:
+     - A configuration file (e.g., `environment.ts`)
+     - Or a CLI command that sets the preferred backend.
+
+## Example
+
+```bash
+# To switch backend to Firestore
+npm run config:firestore
+
+# To switch backend to PostgreSQL
+npm run config:postgres
+```
+
+## Application Details
+
 # SuperAdmin
 
 - who is head of company, can access everything
