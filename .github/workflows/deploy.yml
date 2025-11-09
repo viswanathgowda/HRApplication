@@ -36,9 +36,10 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🏗️ Build project
+      - name: 🏗️ Build Angular project
         run: |
-          APP_NAME=${{ github.event.repository.name }}
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+
           if [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
             BASE_HREF="/${APP_NAME}/dev/"
           elif [[ "${GITHUB_BASE_REF}" == "UAT" ]]; then
@@ -46,6 +47,7 @@ jobs:
           else
             BASE_HREF="/${APP_NAME}/"
           fi
+
           echo "🛠 Updating base href to ${BASE_HREF}"
           sed -i "s|<base href=\"/\">|<base href=\"${BASE_HREF}\">|" src/index.html
 
@@ -56,5 +58,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./dist/hr
+          # 🔥 Confirm actual folder: Angular 17+ builds go to dist/<app-name>/browser
+          publish_dir: ./dist/hr/browser
           destination_dir: ${{ github.ref_name == 'dev' && 'dev' || (github.base_ref == 'UAT' && 'uat') || (github.base_ref == 'live' && '') }}
