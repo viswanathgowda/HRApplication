@@ -31,6 +31,10 @@ npm run config:firestore
 npm run config:postgres
 ```
 
+# Build Pipeline
+
+- push to dev: dev will be live
+
 ## Application Details
 
 # SuperAdmin
