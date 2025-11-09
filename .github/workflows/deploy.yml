@@ -36,24 +36,31 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🏗️ Build project
+      - name: 🏗️ Build Angular project
         run: |
-          if [[ $GITHUB_REF == "refs/heads/dev" ]]; then
-            sed -i 's|<base href="/">|<base href="/${{ github.event.repository.name }}/dev/">|' src/index.html
-          elif [[ $GITHUB_BASE_REF == "UAT" ]]; then
-            sed -i 's|<base href="/">|<base href="/${{ github.event.repository.name }}/uat/">|' src/index.html
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+
+          if [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
+            BASE_HREF="/${APP_NAME}/dev/"
+            DEST_DIR="dev"
+          elif [[ "${GITHUB_BASE_REF}" == "UAT" ]]; then
+            BASE_HREF="/${APP_NAME}/uat/"
+            DEST_DIR="uat"
           else
-            sed -i 's|<base href="/">|<base href="/${{ github.event.repository.name }}/">|' src/index.html
+            BASE_HREF="/${APP_NAME}/"
+            DEST_DIR=""
           fi
-          npm run build --if-present
+
+          echo "🛠 Using base href: ${BASE_HREF}"
+          sed -i "s|<base href=\"/\">|<base href=\"${BASE_HREF}\">|" src/index.html
+
+          # Build Angular with the correct base-href (fixes 404 for JS/CSS)
+          npm run build --if-present -- --configuration production --base-href="${BASE_HREF}"
 
       - name: 🚀 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/<your-app-name>
           publish_branch: gh-pages
-          destination_dir: |
-            ${{ github.ref_name == 'dev' && 'dev' ||
-                (github.base_ref == 'UAT' && 'uat') ||
-                (github.base_ref == 'live' && '') }}
+          publish_dir: ./dist/hr/browser
+          destination_dir: ${{ github.ref_name == 'dev' && 'dev' || (github.base_ref == 'UAT' && 'uat') || (github.base_ref == 'live' && '') }}
