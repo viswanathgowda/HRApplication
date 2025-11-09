@@ -34,7 +34,8 @@ npm run config:postgres
 # Build Pipeline
 
 - push to dev: dev will be https://viswanathgowda.github.io/HRApplication/dev/
-- pr dev to UAT: https://viswanathgowda.github.io/HRApplication/UAT/
+- pr dev to UAT: https://viswanathgowda.github.io/HRApplication/uat/
+- pr uat to live:https://viswanathgowda.github.io/HRApplication/live/
 
 ## Application Details
 
