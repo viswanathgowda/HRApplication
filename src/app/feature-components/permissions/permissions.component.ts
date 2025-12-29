@@ -55,18 +55,18 @@ export class PermissionsComponent implements OnInit {
     private firestore: FirestoreService,
     private messageService: MessageService
   ) {}
-  ngOnInit(): void {
+  ngOnInit() {
     this.auth.getCurrentUser().then((user) => {
       this.firestore
         .getDoc(`users/${user.uid}`)
         .pipe(take(1))
         .subscribe((currentUserDetails) => {
           this.currentUser = currentUserDetails;
+          this.loadRoles();
+          this.loadTabs();
+          this.loadPermissions();
         });
     });
-    this.loadRoles();
-    this.loadTabs();
-    this.loadPermissions();
   }
 
   addRole() {
@@ -172,7 +172,7 @@ export class PermissionsComponent implements OnInit {
     }
     this.firestore.getCollection('roles').subscribe({
       next: (data: any) => {
-        this.roles = data;
+        this.roles = data.filter((role: any) => role.name !== 'select role');
       },
       error: (error: any) => {
         this.messageService.add({

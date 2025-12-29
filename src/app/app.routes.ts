@@ -45,7 +45,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
       },
       {
-        path: 'employees',
+        path: 'employeelist',
         component: EmployeeListComponent,
         canActivate: [AuthGuard],
       },
