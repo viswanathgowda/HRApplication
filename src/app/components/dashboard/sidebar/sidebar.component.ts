@@ -66,6 +66,11 @@ export class SidebarComponent {
         icon: 'pi pi-pencil',
         command: () => this.navigateTo('/dashboard/register'),
       },
+      {
+        label: 'ToDo',
+        icon: 'pi pi-check-square',
+        command: () => this.navigateTo('/dashboard/todo'),
+      },
     ];
   }
 
