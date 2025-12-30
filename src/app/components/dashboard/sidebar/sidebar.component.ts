@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -9,6 +9,8 @@ import { RippleModule } from 'primeng/ripple';
 import { MegaMenu } from 'primeng/megamenu';
 import { ButtonModule } from 'primeng/button';
 import { FireAuthService } from '../../../firebase-services/fireauth.service';
+import { take } from 'rxjs';
+import { FirestoreService } from '../../../firebase-services/firestore.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -25,14 +27,56 @@ import { FireAuthService } from '../../../firebase-services/fireauth.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   items: MegaMenuItem[] | undefined;
+
+  tabs: any[] = [
+    {
+      label: 'Home',
+      icon: 'pi pi-home',
+      command: () => this.navigateTo('/dashboard/home'),
+    },
+    {
+      label: 'Profile',
+      icon: 'pi pi-user',
+      command: () => {
+        this.navigateTo('/dashboard/profile');
+      },
+    },
+    {
+      label: 'Permissions',
+      icon: 'pi pi-lock',
+      command: () => this.navigateTo('/dashboard/permissions'),
+    },
+    {
+      label: 'Attendance',
+      icon: 'pi pi-calendar',
+      command: () => this.navigateTo('/dashboard/attendance'),
+    },
+    {
+      label: 'Employee List',
+      icon: 'pi pi-users',
+      command: () => this.navigateTo('/dashboard/employeelist'),
+    },
+    {
+      label: 'Register',
+      icon: 'pi pi-pencil',
+      command: () => this.navigateTo('/dashboard/register'),
+    },
+    {
+      label: 'ToDo',
+      icon: 'pi pi-check-square',
+      command: () => this.navigateTo('/dashboard/todo'),
+    },
+  ];
 
   constructor(
     private router: Router,
     private auth: FireAuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private firestore: FirestoreService
   ) {
+    //  this.validateTabs();
     this.items = [
       {
         label: 'Home',
@@ -47,26 +91,51 @@ export class SidebarComponent {
         },
       },
       {
-        label: 'Permissions',
-        icon: 'pi pi-lock',
-        command: () => this.navigateTo('/dashboard/permissions'),
-      },
-      {
         label: 'Attendance',
         icon: 'pi pi-calendar',
         command: () => this.navigateTo('/dashboard/attendance'),
       },
-      {
-        label: 'Employee List',
-        icon: 'pi pi-users',
-        command: () => this.navigateTo('/dashboard/employees'),
-      },
-      {
-        label: 'Register',
-        icon: 'pi pi-pencil',
-        command: () => this.navigateTo('/dashboard/register'),
-      },
     ];
+  }
+  ngOnInit(): void {
+    //get current role of user
+    this.validateTabs();
+  }
+
+  validateTabs() {
+    this.auth.getCurrentUser().then((user) => {
+      this.firestore
+        .getDoc(`users/${user.uid}`)
+        .pipe(take(1))
+        .subscribe((currentUserDetails) => {
+          console.log('Current User Details:', currentUserDetails.role);
+          this.firestore
+            .getDoc(`permissions/${currentUserDetails.role}`)
+            .pipe(take(1))
+            .subscribe({
+              next: (rolePermissions) => {
+                console.log('Role Permissions:', rolePermissions);
+
+                const tabsAllowed =
+                  rolePermissions?.permissions?.map(
+                    (perm: any) => perm.tabName
+                  ) || [];
+
+                console.log('tabs allowed:', tabsAllowed);
+                this.tabs.forEach((tab) => {
+                  console.log('Checking tab:', tab.label.toLowerCase());
+                  if (tabsAllowed.includes(tab.label.toLowerCase())) {
+                    this.items = [...(this.items ?? []), tab];
+                    console.log('item added:', this.items);
+                  }
+                });
+              },
+              error: (err) => {
+                console.error('Error fetching role permissions:', err);
+              },
+            });
+        });
+    });
   }
 
   goToProfile() {

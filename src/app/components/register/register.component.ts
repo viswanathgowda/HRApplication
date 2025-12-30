@@ -45,7 +45,6 @@ export class RegisterComponent implements OnInit {
     this.auth.getCurrentUser().then((user) => {
       this.isViewAsGuestUser =
         user.uid === 'vFBApGwnruMfMqVOjngPWspY1wP2' ? true : false;
-      console.log(this.isViewAsGuestUser);
     });
   }
 

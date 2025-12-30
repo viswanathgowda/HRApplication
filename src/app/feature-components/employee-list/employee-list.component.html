@@ -1,1 +1,35 @@
-<p>employee-list works!</p>
+<p-toast /> 
+<p-table [value]="employeeList" stripedRows>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Employee Name</th>
+      <th>Joined On</th>
+      <th>Role</th>
+      <th>Designation</th>
+      <th>Phone Number</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-employee>
+    <tr>
+      <td>{{ employee.name }}</td>
+      <td>{{ employee.present }}</td>
+
+      <td>
+        <p-dropdown
+          [options]="roles"
+          [(ngModel)]="employee.role"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Assign role"
+          showClear="true"
+          appendTo="body"
+          (onChange)="updateEmployee(employee)"
+        ></p-dropdown>
+      </td>
+
+      <td>{{ employee.offs }}</td>
+      <td>{{ employee.phoneNumber }}</td>
+    </tr>
+  </ng-template>
+</p-table>
