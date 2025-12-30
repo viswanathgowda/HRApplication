@@ -33,11 +33,13 @@ export class SidebarComponent implements OnInit {
   tabs: any[] = [
     {
       label: 'Home',
+      name: 'home',
       icon: 'pi pi-home',
       command: () => this.navigateTo('/dashboard/home'),
     },
     {
       label: 'Profile',
+      name: 'profile',
       icon: 'pi pi-user',
       command: () => {
         this.navigateTo('/dashboard/profile');
@@ -45,26 +47,31 @@ export class SidebarComponent implements OnInit {
     },
     {
       label: 'Permissions',
+      name: 'permissions',
       icon: 'pi pi-lock',
       command: () => this.navigateTo('/dashboard/permissions'),
     },
     {
       label: 'Attendance',
+      name: 'attendance',
       icon: 'pi pi-calendar',
       command: () => this.navigateTo('/dashboard/attendance'),
     },
     {
       label: 'Employee List',
+      name: 'employeelist',
       icon: 'pi pi-users',
       command: () => this.navigateTo('/dashboard/employeelist'),
     },
     {
       label: 'Register',
+      name: 'register',
       icon: 'pi pi-pencil',
       command: () => this.navigateTo('/dashboard/register'),
     },
     {
       label: 'ToDo',
+      name: 'todo',
       icon: 'pi pi-check-square',
       command: () => this.navigateTo('/dashboard/todo'),
     },
@@ -76,15 +83,16 @@ export class SidebarComponent implements OnInit {
     private messageService: MessageService,
     private firestore: FirestoreService
   ) {
-    //  this.validateTabs();
     this.items = [
       {
         label: 'Home',
+        name: 'home',
         icon: 'pi pi-home',
         command: () => this.navigateTo('/dashboard/home'),
       },
       {
         label: 'Profile',
+        name: 'profile',
         icon: 'pi pi-user',
         command: () => {
           this.navigateTo('/dashboard/profile');
@@ -92,13 +100,13 @@ export class SidebarComponent implements OnInit {
       },
       {
         label: 'Attendance',
+        name: 'attendance',
         icon: 'pi pi-calendar',
         command: () => this.navigateTo('/dashboard/attendance'),
       },
     ];
   }
   ngOnInit(): void {
-    //get current role of user
     this.validateTabs();
   }
 
@@ -108,30 +116,38 @@ export class SidebarComponent implements OnInit {
         .getDoc(`users/${user.uid}`)
         .pipe(take(1))
         .subscribe((currentUserDetails) => {
-          console.log('Current User Details:', currentUserDetails.role);
           this.firestore
             .getDoc(`permissions/${currentUserDetails.role}`)
             .pipe(take(1))
             .subscribe({
               next: (rolePermissions) => {
-                console.log('Role Permissions:', rolePermissions);
-
                 const tabsAllowed =
-                  rolePermissions?.permissions?.map(
-                    (perm: any) => perm.tabName
-                  ) || [];
+                  rolePermissions?.permissions
+                    ?.filter((perm: any) => perm.view === true)
+                    .map((perm: any) => perm.tabName.toLowerCase()) || [];
 
-                console.log('tabs allowed:', tabsAllowed);
-                this.tabs.forEach((tab) => {
-                  console.log('Checking tab:', tab.label.toLowerCase());
-                  if (tabsAllowed.includes(tab.label.toLowerCase())) {
-                    this.items = [...(this.items ?? []), tab];
-                    console.log('item added:', this.items);
-                  }
-                });
+                const allowedTabs = this.tabs.filter((tab) =>
+                  tabsAllowed.includes(tab?.name.toLowerCase())
+                );
+
+                this.items = [
+                  ...(this.items ?? []),
+                  ...allowedTabs.filter(
+                    (tab) =>
+                      !(this.items ?? []).some(
+                        (item) =>
+                          item.label?.toLowerCase() === tab.label.toLowerCase()
+                      )
+                  ),
+                ];
               },
               error: (err) => {
                 console.error('Error fetching role permissions:', err);
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Unable to load permissions.',
+                });
               },
             });
         });
