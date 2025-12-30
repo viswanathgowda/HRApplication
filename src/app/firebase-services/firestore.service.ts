@@ -46,6 +46,40 @@ export class FirestoreService {
     return setDoc(documentRef, { ...data, ...time }); // Merge data and timestamp (if provided)
   }
 
+  //** Create a document with optional custom ID and timestamps */
+  async createDoc<T>(
+    collectionPath: string,
+    data: T,
+    options?: {
+      id?: string; // optional custom doc id
+      createdAtField?: string | false; // default: 'createdAt' or set to false to disable
+      updatedAtField?: string; // optional
+    }
+  ): Promise<void> {
+    const now = Timestamp.now();
+
+    const payload: any = {
+      ...data,
+      ...(options?.createdAtField !== false && {
+        [options?.createdAtField || 'createdAt']: now,
+      }),
+      ...(options?.updatedAtField && {
+        [options.updatedAtField]: now,
+      }),
+    };
+
+    // 🔹 Auto ID
+    if (!options?.id) {
+      const colRef = collection(this.firestore, collectionPath);
+      await addDoc(colRef, payload);
+      return;
+    }
+
+    // 🔹 Custom ID
+    const docRef = doc(this.firestore, collectionPath, options.id);
+    await setDoc(docRef, payload);
+  }
+
   /**
    * Add a new document to a collection
    * @param collectionPath Path of the collection (e.g., "collection")

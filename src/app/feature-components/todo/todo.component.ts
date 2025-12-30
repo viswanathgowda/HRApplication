@@ -15,6 +15,9 @@ import { SelectModule } from 'primeng/select';
 import { FieldType, TodoStatus, DynamicField, Todo } from './todo.model';
 import { FireAuthService } from '../../firebase-services/fireauth.service';
 import { FirestoreService } from '../../firebase-services/firestore.service';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
+import { Timestamp } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-todo',
@@ -30,9 +33,11 @@ import { FirestoreService } from '../../firebase-services/firestore.service';
     TagModule,
     TextareaModule,
     DividerModule,
+    Toast,
   ],
   templateUrl: './todo.component.html',
   styleUrl: './todo.component.scss',
+  providers: [MessageService],
 })
 export class TodoComponent implements OnInit {
   todos: Todo[] = [];
@@ -63,16 +68,19 @@ export class TodoComponent implements OnInit {
   lastDoc: any = null;
   pageSize = 10;
 
-  currentUser: string | null = null;
+  currentUser: { uid: string; username: string } | null = null;
 
   constructor(
     private auth: FireAuthService,
-    private firestore: FirestoreService
+    private firestore: FirestoreService,
+    private messageService: MessageService
   ) {}
+
   ngOnInit(): void {
     this.auth.getCurrentUser().then((user) => {
       this.firestore.getDoc(`users/${user.uid}`).subscribe((userData: any) => {
-        this.currentUser = userData.username;
+        this.currentUser = { username: userData.username, uid: user.uid };
+        this.getTodos(userData.username);
       });
     });
     this.loadUsers();
@@ -96,12 +104,37 @@ export class TodoComponent implements OnInit {
       });
   }
 
+  getTodos(username: string) {
+    this.firestore
+      .getCollection('todos', [
+        {
+          key: 'assignedTo',
+          filter: '==',
+          val: username,
+        },
+      ])
+      .subscribe((data: any[]) => {
+        this.todos = data.map((todo) => ({
+          ...todo,
+          createdDate:
+            todo.createdDate instanceof Timestamp
+              ? todo.createdDate.toDate()
+              : todo.createdDate,
+          expectedDate:
+            todo.expectedDate instanceof Timestamp
+              ? todo.expectedDate.toDate()
+              : todo.expectedDate,
+        }));
+      });
+  }
+
   emptyTodo(): Todo {
     const obj = {
       id: Date.now(),
       title: '',
       category: 'General',
-      createdBy: 'Admin',
+      createdBy: this.currentUser?.uid || '',
+      createdByUsername: this.currentUser?.username || '',
       assignedTo: this.users?.length > 0 ? this.users[0]?.username : '',
       createdDate: new Date(),
       expectedDate: new Date(),
@@ -132,10 +165,40 @@ export class TodoComponent implements OnInit {
     }
   }
 
+  //later we have add assignedTo docid to assigned user
   createTodo() {
     this.todos.push(structuredClone(this.newTodo));
-    console.log('Todos after addition:', this.todos);
-    this.newTodo = this.emptyTodo();
+    const uid = this.currentUser?.uid; // or however you get auth user
+    if (!uid || !this.currentUser?.username) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'User not authenticated.',
+      });
+      return;
+    }
+    this.newTodo.createdBy = uid; // ✅ MUST be UID
+    this.newTodo.createdByUsername = this.currentUser?.username || '';
+
+    console.log('New Todo to be saved:', this.newTodo);
+    this.firestore
+      .createDoc(`todos`, this.newTodo, { createdAtField: 'createdDate' })
+      .then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Todo Created',
+          detail: 'The todo has been created successfully.',
+        });
+        this.newTodo = this.emptyTodo();
+      })
+      .catch((error) => {
+        console.error('Error saving todo to Firestore:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'There was an error creating the todo.',
+        });
+      });
   }
 
   updateTodo() {

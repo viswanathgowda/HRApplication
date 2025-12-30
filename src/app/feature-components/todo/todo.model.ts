@@ -19,6 +19,7 @@ export interface Todo {
   title: string;
   category: string;
   createdBy: string;
+  createdByUsername: string;
   assignedTo: string;
   createdDate: Date;
   expectedDate: Date;
