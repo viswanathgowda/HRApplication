@@ -17,6 +17,7 @@ import {
   limit,
   query,
   collectionData,
+  startAfter,
 } from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
 
@@ -112,7 +113,8 @@ export class FirestoreService {
     }[],
     lim?: number,
     order?: { key: string; direction: 'asc' | 'desc' },
-    orCond?: boolean
+    orCond?: boolean,
+    startAfterDoc?: any
   ): Observable<any> {
     const collectionRef = collection(this.firestore, path);
     const constraints: QueryConstraint[] = [];
@@ -136,6 +138,9 @@ export class FirestoreService {
       constraints.push(orderBy(order.key, order.direction));
     }
 
+    if (startAfterDoc) {
+      constraints.push(startAfter(startAfterDoc));
+    }
     // Add limit
     if (lim) {
       constraints.push(limit(lim));

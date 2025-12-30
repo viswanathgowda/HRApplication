@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -13,6 +13,8 @@ import { DividerModule } from 'primeng/divider';
 import { SelectModule } from 'primeng/select';
 
 import { FieldType, TodoStatus, DynamicField, Todo } from './todo.model';
+import { FireAuthService } from '../../firebase-services/fireauth.service';
+import { FirestoreService } from '../../firebase-services/firestore.service';
 
 @Component({
   selector: 'app-todo',
@@ -30,11 +32,12 @@ import { FieldType, TodoStatus, DynamicField, Todo } from './todo.model';
     DividerModule,
   ],
   templateUrl: './todo.component.html',
+  styleUrl: './todo.component.scss',
 })
-export class TodoComponent {
+export class TodoComponent implements OnInit {
   todos: Todo[] = [];
 
-  users = ['Admin', 'Manager', 'User1', 'User2'];
+  // users = ['Admin', 'Manager', 'User1', 'User2'];
   categories = ['General', 'Development', 'Design', 'Testing'];
 
   fieldTypes: FieldType[] = [
@@ -45,6 +48,7 @@ export class TodoComponent {
     'link',
     'image',
   ];
+  statusOptions: TodoStatus[] = ['OPEN', 'IN PROGRESS', 'COMPLETED'];
 
   filterUser: string | null = null;
   filterCategory: string | null = null;
@@ -52,19 +56,60 @@ export class TodoComponent {
 
   newTodo: Todo = this.emptyTodo();
 
+  isEditMode = false;
+  editingTodoId: number | null = null;
+
+  users: any[] = [];
+  lastDoc: any = null;
+  pageSize = 10;
+
+  currentUser: string | null = null;
+
+  constructor(
+    private auth: FireAuthService,
+    private firestore: FirestoreService
+  ) {}
+  ngOnInit(): void {
+    this.auth.getCurrentUser().then((user) => {
+      this.firestore.getDoc(`users/${user.uid}`).subscribe((userData: any) => {
+        this.currentUser = userData.username;
+      });
+    });
+    this.loadUsers();
+  }
+
+  loadUsers() {
+    this.firestore
+      .getCollection(
+        'users',
+        [],
+        this.pageSize,
+        { key: 'createdAt', direction: 'asc' },
+        false,
+        this.lastDoc
+      )
+      .subscribe((data) => {
+        if (data.length > 0) {
+          this.lastDoc = data[data.length - 1];
+          this.users = [...this.users, ...data.map((d: any) => d.username)];
+        }
+      });
+  }
+
   emptyTodo(): Todo {
-    return {
+    const obj = {
       id: Date.now(),
       title: '',
       category: 'General',
       createdBy: 'Admin',
-      assignedTo: 'User1',
+      assignedTo: this.users?.length > 0 ? this.users[0]?.username : '',
       createdDate: new Date(),
       expectedDate: new Date(),
-      status: 'OPEN',
+      status: 'OPEN' as TodoStatus,
       progress: 0,
-      fields: [],
+      fields: [] as DynamicField[],
     };
+    return obj;
   }
 
   addField(type: FieldType) {
@@ -80,8 +125,33 @@ export class TodoComponent {
   }
 
   saveTodo() {
+    if (this.isEditMode) {
+      this.updateTodo();
+    } else {
+      this.createTodo();
+    }
+  }
+
+  createTodo() {
     this.todos.push(structuredClone(this.newTodo));
+    console.log('Todos after addition:', this.todos);
     this.newTodo = this.emptyTodo();
+  }
+
+  updateTodo() {
+    const index = this.todos.findIndex((t) => t.id === this.editingTodoId);
+
+    if (index !== -1) {
+      this.todos[index] = structuredClone(this.newTodo);
+    }
+
+    this.resetEditState();
+  }
+
+  resetEditState() {
+    this.newTodo = this.emptyTodo();
+    this.isEditMode = false;
+    this.editingTodoId = null;
   }
 
   clearFilters() {
@@ -102,10 +172,23 @@ export class TodoComponent {
   }
 
   severity(status: TodoStatus) {
-    return status === 'OPEN'
-      ? 'info'
-      : status === 'IN_PROGRESS'
-      ? 'warn'
-      : 'success';
+    switch (status) {
+      case 'OPEN':
+        return 'info';
+      case 'IN PROGRESS':
+        return 'warn';
+      case 'COMPLETED':
+        return 'success';
+      default:
+        return 'info';
+    }
+  }
+
+  editTodo(todo: Todo) {
+    this.isEditMode = true;
+    this.editingTodoId = todo.id;
+
+    // Keep the same ID
+    this.newTodo = structuredClone(todo);
   }
 }

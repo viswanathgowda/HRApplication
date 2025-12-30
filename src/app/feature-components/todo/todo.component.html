@@ -1,21 +1,63 @@
 <p-card header="Create Dynamic Todo">
-  <input pInputText placeholder="Todo Title" [(ngModel)]="newTodo.title" />
+  <!-- Title -->
+  <div class="p-field mb-3">
+    <input
+      pInputText
+      placeholder="Todo Title"
+      [(ngModel)]="newTodo.title"
+      class="w-full"
+    />
+  </div>
 
-  <p-select
-    [options]="categories"
-    [(ngModel)]="newTodo.category"
-    placeholder="Category"
-  >
-  </p-select>
-  <p-select [options]="users" [(ngModel)]="newTodo.createdBy"></p-select>
-  <p-select [options]="users" [(ngModel)]="newTodo.assignedTo"></p-select>
+  <!-- Category -->
+  <div class="p-field mb-3">
+    <p-select
+      [options]="categories"
+      [(ngModel)]="newTodo.category"
+      placeholder="Category"
+      class="w-full"
+    ></p-select>
+  </div>
 
-  <!-- ✅ PrimeNG 18 DatePicker -->
-  <p-datePicker [(ngModel)]="newTodo.expectedDate"></p-datePicker>
+  <div class="p-field mb-3 flex align-items-center gap-3">
+    <label class="m-0 font-medium">Created By:</label>
+    <span class="p-2 surface-100 border-round text-sm">
+      {{ currentUser }}
+    </span>
+  </div>
+
+  <!-- Assigned To -->
+  <div class="p-field mb-3">
+    <p-select
+      [options]="users"
+      [(ngModel)]="newTodo.assignedTo"
+      placeholder="Assign To"
+      class="w-full"
+    ></p-select>
+  </div>
+
+  <!-- Status -->
+  <div class="p-field mb-3">
+    <p-select
+      [options]="statusOptions"
+      [(ngModel)]="newTodo.status"
+      placeholder="Status"
+      class="w-full"
+    ></p-select>
+  </div>
+
+  <!-- Expected Date -->
+  <div class="p-field mb-3">
+    <p-datePicker
+      [(ngModel)]="newTodo.expectedDate"
+      class="w-full"
+    ></p-datePicker>
+  </div>
 
   <p-divider></p-divider>
 
   <h4>Add Fields</h4>
+
   <button
     pButton
     *ngFor="let t of fieldTypes"
@@ -24,41 +66,51 @@
     (click)="addField(t)"
   ></button>
 
-  <div *ngFor="let field of newTodo.fields; let i = index">
-    <p-card class="mt-2">
-      <!-- ✅ Dynamic label -->
+  <div *ngFor="let field of newTodo.fields; let i = index" class="mt-2">
+    <p-card class="mt-3">
       <input
         pInputText
         placeholder="Field Label (What?)"
         [(ngModel)]="field.label"
+        class="w-full mb-2"
       />
 
       <ng-container [ngSwitch]="field.type">
-        <input *ngSwitchCase="'text'" pInputText [(ngModel)]="field.value" />
+        <input
+          *ngSwitchCase="'text'"
+          pInputText
+          class="w-full"
+          [(ngModel)]="field.value"
+        />
         <input
           *ngSwitchCase="'number'"
           type="number"
           pInputText
+          class="w-full"
           [(ngModel)]="field.value"
         />
         <p-datePicker
           *ngSwitchCase="'date'"
+          class="w-full"
           [(ngModel)]="field.value"
         ></p-datePicker>
         <textarea
           *ngSwitchCase="'textarea'"
-          pInputTextarea
+          pTextarea
+          class="w-full"
           [(ngModel)]="field.value"
         ></textarea>
         <input
           *ngSwitchCase="'link'"
           pInputText
+          class="w-full"
           placeholder="https://"
           [(ngModel)]="field.value"
         />
         <input
           *ngSwitchCase="'image'"
           pInputText
+          class="w-full"
           placeholder="Image URL"
           [(ngModel)]="field.value"
         />
@@ -76,8 +128,9 @@
 
   <button
     pButton
-    label="Save Todo"
+    [label]="isEditMode ? 'Update Todo' : 'Save Todo'"
     severity="success"
+    class="mt-3"
     (click)="saveTodo()"
   ></button>
 </p-card>
@@ -104,17 +157,39 @@
   <div class="p-d-flex p-flex-column p-gap-3">
     <p-card *ngFor="let todo of filteredTodos()">
       <ng-template pTemplate="header">
-        {{ todo.title }}
-        <p-tag [value]="todo.status" [severity]="severity(todo.status)" />
+        <div class="pl-2 pt-2 flex align-items-center gap-2">
+          <p-tag [value]="todo.title"></p-tag>
+          <p-tag
+            [value]="todo.status"
+            [severity]="severity(todo.status)"
+          ></p-tag>
+        </div>
       </ng-template>
 
       <p><b>Assigned:</b> {{ todo.assignedTo }}</p>
+      <p class="text-sm mb-1">
+        <b>Created Date:</b>
+        {{ todo.createdDate | date : "dd MMM yyyy, hh:mm a" }}
+      </p>
+
+      <p class="text-sm mb-2">
+        <b>Expected Date:</b>
+        {{ todo.expectedDate | date : "dd MMM yyyy" }}
+      </p>
 
       <ul>
         <li *ngFor="let f of todo.fields">
           <b>{{ f.label }}:</b> {{ f.value }}
         </li>
       </ul>
+
+      <button
+        pButton
+        icon="pi pi-pencil"
+        label="Edit"
+        class="mt-2"
+        (click)="editTodo(todo)"
+      ></button>
     </p-card>
   </div>
 </p-card>
