@@ -1,1 +1,120 @@
-<p>todo works!</p>
+<p-card header="Create Dynamic Todo">
+  <input pInputText placeholder="Todo Title" [(ngModel)]="newTodo.title" />
+
+  <p-select
+    [options]="categories"
+    [(ngModel)]="newTodo.category"
+    placeholder="Category"
+  >
+  </p-select>
+  <p-select [options]="users" [(ngModel)]="newTodo.createdBy"></p-select>
+  <p-select [options]="users" [(ngModel)]="newTodo.assignedTo"></p-select>
+
+  <!-- ✅ PrimeNG 18 DatePicker -->
+  <p-datePicker [(ngModel)]="newTodo.expectedDate"></p-datePicker>
+
+  <p-divider></p-divider>
+
+  <h4>Add Fields</h4>
+  <button
+    pButton
+    *ngFor="let t of fieldTypes"
+    class="mr-2 mb-2"
+    [label]="t"
+    (click)="addField(t)"
+  ></button>
+
+  <div *ngFor="let field of newTodo.fields; let i = index">
+    <p-card class="mt-2">
+      <!-- ✅ Dynamic label -->
+      <input
+        pInputText
+        placeholder="Field Label (What?)"
+        [(ngModel)]="field.label"
+      />
+
+      <ng-container [ngSwitch]="field.type">
+        <input *ngSwitchCase="'text'" pInputText [(ngModel)]="field.value" />
+        <input
+          *ngSwitchCase="'number'"
+          type="number"
+          pInputText
+          [(ngModel)]="field.value"
+        />
+        <p-datePicker
+          *ngSwitchCase="'date'"
+          [(ngModel)]="field.value"
+        ></p-datePicker>
+        <textarea
+          *ngSwitchCase="'textarea'"
+          pInputTextarea
+          [(ngModel)]="field.value"
+        ></textarea>
+        <input
+          *ngSwitchCase="'link'"
+          pInputText
+          placeholder="https://"
+          [(ngModel)]="field.value"
+        />
+        <input
+          *ngSwitchCase="'image'"
+          pInputText
+          placeholder="Image URL"
+          [(ngModel)]="field.value"
+        />
+      </ng-container>
+
+      <button
+        pButton
+        icon="pi pi-trash"
+        severity="danger"
+        class="mt-2"
+        (click)="removeField(i)"
+      ></button>
+    </p-card>
+  </div>
+
+  <button
+    pButton
+    label="Save Todo"
+    severity="success"
+    (click)="saveTodo()"
+  ></button>
+</p-card>
+
+<p-divider></p-divider>
+
+<p-card header="Todo List">
+  <div class="p-d-flex p-gap-2 p-mb-3">
+    <p-select [options]="users" [(ngModel)]="filterUser" placeholder="User" />
+    <p-select
+      [options]="categories"
+      [(ngModel)]="filterCategory"
+      placeholder="Category"
+    />
+    <p-datePicker [(ngModel)]="filterDate" />
+    <button
+      pButton
+      label="Clear Filters"
+      severity="secondary"
+      (click)="clearFilters()"
+    ></button>
+  </div>
+
+  <div class="p-d-flex p-flex-column p-gap-3">
+    <p-card *ngFor="let todo of filteredTodos()">
+      <ng-template pTemplate="header">
+        {{ todo.title }}
+        <p-tag [value]="todo.status" [severity]="severity(todo.status)" />
+      </ng-template>
+
+      <p><b>Assigned:</b> {{ todo.assignedTo }}</p>
+
+      <ul>
+        <li *ngFor="let f of todo.fields">
+          <b>{{ f.label }}:</b> {{ f.value }}
+        </li>
+      </ul>
+    </p-card>
+  </div>
+</p-card>

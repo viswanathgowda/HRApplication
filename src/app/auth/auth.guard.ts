@@ -38,12 +38,10 @@ export class AuthGuard implements CanActivate {
                 .pipe(take(1))
                 .subscribe({
                   next: (rolePermissions) => {
-                    console.log('Role Permissions:', rolePermissions);
-
                     const tabsAllowed =
-                      rolePermissions?.permissions?.map(
-                        (perm: any) => perm.tabName
-                      ) || [];
+                      rolePermissions?.permissions
+                        ?.filter((perm: any) => perm.view === true)
+                        .map((perm: any) => perm.tabName.toLowerCase()) || [];
 
                     const routeTabName = state.url.split('/dashboard/')[1];
 
