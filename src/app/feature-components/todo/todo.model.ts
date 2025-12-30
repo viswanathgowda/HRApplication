@@ -1,4 +1,3 @@
-
 export type FieldType =
   | 'text'
   | 'number'
@@ -7,7 +6,7 @@ export type FieldType =
   | 'link'
   | 'image';
 
-export type TodoStatus = 'OPEN' | 'IN_PROGRESS' | 'COMPLETED';
+export type TodoStatus = 'OPEN' | 'IN PROGRESS' | 'COMPLETED';
 
 export interface DynamicField {
   label: string;
@@ -20,6 +19,7 @@ export interface Todo {
   title: string;
   category: string;
   createdBy: string;
+  createdByUsername: string;
   assignedTo: string;
   createdDate: Date;
   expectedDate: Date;
