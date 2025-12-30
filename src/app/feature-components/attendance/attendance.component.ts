@@ -68,24 +68,24 @@ export class AttendanceComponent implements OnInit {
   ];
 
   holidays: Holiday[] = [
-    { '26-1-2025': 'Republic Day' }, // Republic Day
-    { '15-8-2025': 'Independence Day' }, // Independence Day
-    { '2-10-2025': 'Gandhi Jayanti' }, // Gandhi Jayanti
-    { '14-4-2025': 'Ambedkar Jayanti' }, // Ambedkar Jayanti
-    { '1-5-2025': 'Labour Day' }, // Labour Day
-    { '15-8-2025': 'Assam State Day' }, // Assam State Day (Assam)
-    { '19-10-2025': 'Dussehra' }, // Dussehra
-    { '25-12-2025': 'Christmas Day' }, // Christmas Day
-    { '14-1-2025': 'Makar Sankranti' }, // Makar Sankranti (may vary by region)
-    { '7-8-2025': 'Raksha Bandhan' }, // Raksha Bandhan (may vary by region)
-    { '16-2-2025': 'Maha Shivaratri' }, // Maha Shivaratri (may vary by region)
-    { '8-3-2025': 'Holi' }, // Holi (may vary by region)
-    { '23-11-2025': 'Diwali' }, // Diwali
-    { '15-9-2025': 'Onam' }, // Onam (may vary by region)
-    { '6-1-2025': 'Epiphany' }, // Epiphany (mainly for Christians)
-    { '13-4-2025': 'Good Friday' }, // Good Friday (for Christians)
-    { '20-7-2025': 'Eid-ul-Adha' }, // Eid-ul-Adha (Islamic festival, date varies)
-    { '1-4-2025': 'Easter Sunday' }, // Easter Sunday (Christian festival)
+    { '26-1-2026': 'Republic Day' }, // Republic Day
+    { '15-8-2026': 'Independence Day' }, // Independence Day
+    { '2-10-2026': 'Gandhi Jayanti' }, // Gandhi Jayanti
+    { '14-4-2026': 'Ambedkar Jayanti' }, // Ambedkar Jayanti
+    { '1-5-2026': 'Labour Day' }, // Labour Day
+    { '15-8-2026': 'Assam State Day' }, // Assam State Day (Assam)
+    { '27-10-2026': 'Dussehra' }, // Dussehra (may vary)
+    { '25-12-2026': 'Christmas Day' }, // Christmas Day
+    { '14-1-2026': 'Makar Sankranti' }, // Makar Sankranti
+    { '26-8-2026': 'Raksha Bandhan' }, // Raksha Bandhan (may vary)
+    { '15-2-2026': 'Maha Shivaratri' }, // Maha Shivaratri (may vary)
+    { '4-3-2026': 'Holi' }, // Holi (may vary)
+    { '8-11-2026': 'Diwali' }, // Diwali (may vary)
+    { '29-8-2026': 'Onam' }, // Onam (may vary)
+    { '6-1-2026': 'Epiphany' }, // Epiphany
+    { '3-4-2026': 'Good Friday' }, // Good Friday
+    { '17-6-2026': 'Eid-ul-Adha' }, // Eid-ul-Adha (may vary)
+    { '5-4-2026': 'Easter Sunday' }, // Easter Sunday
   ];
 
   attendance: any[] = [];
@@ -174,53 +174,72 @@ export class AttendanceComponent implements OnInit {
   }
 
   private getAttendanceStatus(date: string, record?: any): string {
-    const today = new Date(date.split('-').reverse().join('-'));
-    const signInDate = record ? this.formatDate(record.signIn.toDate()) : date;
-    const isHoliday = this.holidays.find((holiday) =>
-      holiday.hasOwnProperty(signInDate)
-    );
+    const today = new Date();
+    const attendanceDate = new Date(date.split('-').reverse().join('-'));
+    attendanceDate.setHours(0, 0, 0, 0);
 
-    if (today.getDay() === 0) {
+    // 1️⃣ Sunday
+    if (attendanceDate.getDay() === 0) {
       return 'Off';
-    } else if (isHoliday) {
-      return `Holiday: ${isHoliday[signInDate]}`;
     }
 
-    const currentTime = new Date().getTime();
-    const signInTime = record ? record.signIn.toDate().getTime() : null;
-    const diffInMilliseconds = currentTime - signInTime;
-    const diff = diffInMilliseconds / (1000 * 60 * 60);
+    // 2️⃣ Holiday
+    const signInDate = record ? this.formatDate(record.signIn.toDate()) : date;
 
-    if (record && record.signIn && record.signOut) {
-      if (diff > 8) {
-        return `Present - OverTime ${diff - 8}`;
-      }
-      if (diff === 4) {
-        return 'Half-day';
-      } else {
-        return 'Present';
-      }
-    } else if (record && record.signIn && !record.signOut) {
-      if (diff === 4) {
-        return 'Half-day';
-      } else if (diff > 8) {
-        return 'Alert: sign out not found!';
-      } else {
-        return 'Working...';
-      }
+    const holiday = this.holidays.find((h) => h.hasOwnProperty(signInDate));
+
+    if (holiday) {
+      return `Holiday: ${holiday[signInDate]}`;
     }
-
-    const currentHours = new Date().getHours();
-
-    if (!record && today.getTime() !== new Date().getTime()) {
+    console.log('Record for date', date, ':', record);
+    // 3️⃣ No record
+    if (!record?.signIn) {
+      // Past date → Absent
+      if (attendanceDate < new Date(today.setHours(0, 0, 0, 0))) {
+        return 'Absent';
+      }
+      // Today & before work hours
+      if (new Date().getHours() < 9) {
+        return '';
+      }
       return 'Absent';
     }
 
-    if (!record && currentHours < 9) {
-      return '';
+    // 4️⃣ Time calculation
+    const signInTime: Date = record.signIn.toDate();
+    const signOutTime: Date | null = record.signOut
+      ? record.signOut.toDate()
+      : null;
+
+    const endTime = signOutTime ?? new Date();
+    const diffMs = endTime.getTime() - signInTime.getTime();
+
+    const workedHours = diffMs / (1000 * 60 * 60);
+
+    const hours = Math.floor(workedHours);
+    const minutes = Math.floor((workedHours - hours) * 60);
+
+    // 5️⃣ Signed in but not signed out
+    if (!signOutTime) {
+      if (workedHours >= 8) {
+        return 'Alert: Sign-out missing';
+      }
+      return 'Working...';
     }
 
-    return 'Data Not Found!';
+    // 6️⃣ Final attendance status
+    if (workedHours >= 8) {
+      const overtime = workedHours - 8;
+      return overtime > 0
+        ? `Present - Overtime ${overtime.toFixed(2)} hrs`
+        : 'Present';
+    }
+
+    if (workedHours >= 4) {
+      return 'Half-day';
+    }
+
+    return 'Absent';
   }
 
   prepareMonthlyAttendance() {
