@@ -17,6 +17,7 @@ import {
   limit,
   query,
   collectionData,
+  startAfter,
 } from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
 
@@ -43,6 +44,40 @@ export class FirestoreService {
 
     const documentRef = doc(this.firestore, docPath);
     return setDoc(documentRef, { ...data, ...time }); // Merge data and timestamp (if provided)
+  }
+
+  //** Create a document with optional custom ID and timestamps */
+  async createDoc<T>(
+    collectionPath: string,
+    data: T,
+    options?: {
+      id?: string; // optional custom doc id
+      createdAtField?: string | false; // default: 'createdAt' or set to false to disable
+      updatedAtField?: string; // optional
+    }
+  ): Promise<void> {
+    const now = Timestamp.now();
+
+    const payload: any = {
+      ...data,
+      ...(options?.createdAtField !== false && {
+        [options?.createdAtField || 'createdAt']: now,
+      }),
+      ...(options?.updatedAtField && {
+        [options.updatedAtField]: now,
+      }),
+    };
+
+    // 🔹 Auto ID
+    if (!options?.id) {
+      const colRef = collection(this.firestore, collectionPath);
+      await addDoc(colRef, payload);
+      return;
+    }
+
+    // 🔹 Custom ID
+    const docRef = doc(this.firestore, collectionPath, options.id);
+    await setDoc(docRef, payload);
   }
 
   /**
@@ -112,7 +147,8 @@ export class FirestoreService {
     }[],
     lim?: number,
     order?: { key: string; direction: 'asc' | 'desc' },
-    orCond?: boolean
+    orCond?: boolean,
+    startAfterDoc?: any
   ): Observable<any> {
     const collectionRef = collection(this.firestore, path);
     const constraints: QueryConstraint[] = [];
@@ -136,6 +172,9 @@ export class FirestoreService {
       constraints.push(orderBy(order.key, order.direction));
     }
 
+    if (startAfterDoc) {
+      constraints.push(startAfter(startAfterDoc));
+    }
     // Add limit
     if (lim) {
       constraints.push(limit(lim));

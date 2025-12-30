@@ -53,10 +53,14 @@ export class RegisterComponent implements OnInit {
       .register(this.regData.email, this.regData.password)
       .then((res: any) => {
         this.firestore
-          .createDocument(`users/${res.user.uid}`, {
-            email: res.user.email,
-            lastLoginAt: res.user.reloadUserInfo.lastLoginAt,
-          })
+          .createDocument(
+            `users/${res.user.uid}`,
+            {
+              email: res.user.email,
+              lastLoginAt: res.user.reloadUserInfo.lastLoginAt,
+            },
+            'createdAt'
+          )
           .then(() => {
             this.messageService.add({
               severity: 'info',
