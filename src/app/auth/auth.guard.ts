@@ -7,6 +7,8 @@ import {
 } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { Location } from '@angular/common';
+import { FirestoreService } from '../firebase-services/firestore.service';
+import { take } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +17,8 @@ export class AuthGuard implements CanActivate {
   constructor(
     private auth: Auth,
     private router: Router,
-    private location: Location
+    private location: Location,
+    private firestore: FirestoreService
   ) {}
 
   canActivate(
@@ -25,6 +28,45 @@ export class AuthGuard implements CanActivate {
     return new Promise((resolve) => {
       onAuthStateChanged(this.auth, (user) => {
         if (user) {
+          this.firestore
+            .getDoc(`users/${user.uid}`)
+            .pipe(take(1))
+            .subscribe((currentUserDetails) => {
+              console.log('Current User Details:', currentUserDetails.role);
+              this.firestore
+                .getDoc(`permissions/${currentUserDetails.role}`)
+                .pipe(take(1))
+                .subscribe({
+                  next: (rolePermissions) => {
+                    const tabsAllowed =
+                      rolePermissions?.permissions
+                        ?.filter((perm: any) => perm.view === true)
+                        .map((perm: any) => perm.tabName.toLowerCase()) || [];
+
+                    const routeTabName = state.url.split('/dashboard/')[1];
+
+                    if (!tabsAllowed.includes(routeTabName)) {
+                      if (this.defaultRouteForRole(state)) {
+                        resolve(true);
+                      } else {
+                        this.router.navigate(['/dashboard/home']);
+                        resolve(false);
+                      }
+                    } else {
+                      resolve(true);
+                    }
+                  },
+                  error: (err) => {
+                    console.error('Error fetching role permissions:', err);
+                    if (this.defaultRouteForRole(state)) {
+                      resolve(true);
+                    } else {
+                      this.router.navigate(['/dashboard/home']);
+                      resolve(false);
+                    }
+                  },
+                });
+            });
           // If the user is logged in and trying to access '/login' or '/dashboard/login', redirect to previous or default route
           if (state.url === '/dashboard/login' || state.url === '/login') {
             const previousRoute =
@@ -49,5 +91,13 @@ export class AuthGuard implements CanActivate {
         }
       });
     });
+  }
+
+  defaultRouteForRole(state: any): boolean {
+    return (
+      state.url === '/dashboard/home' ||
+      state.url === '/dashboard/profile' ||
+      state.url === '/dashboard/attendance'
+    );
   }
 }

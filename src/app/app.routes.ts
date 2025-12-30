@@ -9,6 +9,7 @@ import { HomeComponent } from './feature-components/home/home.component';
 import { PermissionsComponent } from './feature-components/permissions/permissions.component';
 import { AttendanceComponent } from './feature-components/attendance/attendance.component';
 import { EmployeeListComponent } from './feature-components/employee-list/employee-list.component';
+import { TodoComponent } from './feature-components/todo/todo.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [AuthGuard] },
@@ -44,8 +45,13 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
       },
       {
-        path: 'employees',
+        path: 'employeelist',
         component: EmployeeListComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'todo',
+        component: TodoComponent,
         canActivate: [AuthGuard],
       },
     ],
